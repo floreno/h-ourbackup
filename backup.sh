@@ -67,6 +67,9 @@ rsync -azP \
   && rm -f ${BCKFS_MOUNTPOINT}/current \
   && ln -s ${BCKFS_MOUNTPOINT}/backup-${DATE} ${BCKFS_MOUNTPOINT}/current
 
+logger -t "iBackup" "INFO: Delete old backups"
+${BDIR}/cleaner.bash
+
 echo "backup-${DATE} > "`find ${BCKFS_MOUNTPOINT}/backup-${DATE} -type f -links 1 -printf "%s\n" | awk '{s=s+$1} END {print s}'` >> ${BACKUPDIR}/space-used
 
 # get remote disk-usage and alarm usage over 70%
