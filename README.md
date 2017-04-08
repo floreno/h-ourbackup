@@ -18,6 +18,7 @@ $ resize2fs /backup/hetzner-backup/filesystem.img
 
 # add automount to /etc/fstab
 uXXXXX@uXXXXX.your-backup.de:/folder /backup/hetzner-backup fuse.sshfs defaults,_netdev 0 0
+
 /backup/hetzner-backup/filesystem.img /backup/backups ext4 defaults,loop 0 0
 
 # For dovecot run once
