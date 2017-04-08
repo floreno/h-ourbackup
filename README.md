@@ -6,14 +6,17 @@ A hourly RSync-Backup-Script
 $ mkdir -p /backup/{backups,hetzner-backup}
 
 $ apt-get install sshfs
+
 $ sshfs uXXXXX@uXXXXX.your-backup.de:/folder /backup/hetzner-backup
 
 # Create Image
 $ dd if=/dev/zero of=/backup/hetzner-backup/filesystem.img bs=1 seek=100G count=1
+
 $ mkfs.ext4 /backup/hetzner-backup/filesystem.img
 
 # Extend image-size. This will not overwrite existing data on the image file.
 $ dd if=/dev/zero of=/backup/hetzner-backup/filesystem.img bs=1 seek=200G count=1
+
 $ resize2fs /backup/hetzner-backup/filesystem.img
 
 # add automount to /etc/fstab
