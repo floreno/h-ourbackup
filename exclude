@@ -1,0 +1,13 @@
+/backup
+/dev
+/media
+/mnt
+/proc
+/run
+/tmp
+/sys
+/var/cache
+/var/lib
+/var/spool
+/var/log
+/root
