@@ -61,23 +61,31 @@ rsync -azP \
   --exclude-from=${BACKUPDIR}/exclude \
   --log-file=${BCKFS_MOUNTPOINT}/incomplete_backup.log \
   --link-dest=${BCKFS_MOUNTPOINT}/current \
-  / ${BCKFS_MOUNTPOINT}/incomplete_backup \
-  && mv ${BCKFS_MOUNTPOINT}/incomplete_backup ${BCKFS_MOUNTPOINT}/backup-${DATE} \
-  && mv ${BCKFS_MOUNTPOINT}/incomplete_backup.log ${BCKFS_MOUNTPOINT}/backup-${DATE}.log \
-  && rm -f ${BCKFS_MOUNTPOINT}/current \
-  && ln -s ${BCKFS_MOUNTPOINT}/backup-${DATE} ${BCKFS_MOUNTPOINT}/current
+  / ${BCKFS_MOUNTPOINT}/incomplete_backup
 
-logger -t "iBackup" "INFO: Delete old backups"
-${BDIR}/cleaner.bash
+case $? in
+	0|24)
+		echo "success"
+		mv ${BCKFS_MOUNTPOINT}/incomplete_backup ${BCKFS_MOUNTPOINT}/backup-${DATE} \
+		&& mv ${BCKFS_MOUNTPOINT}/incomplete_backup.log ${BCKFS_MOUNTPOINT}/backup-${DATE}.log \
+		&& rm -f ${BCKFS_MOUNTPOINT}/current \
+		&& ln -s ${BCKFS_MOUNTPOINT}/backup-${DATE} ${BCKFS_MOUNTPOINT}/current
+		logger -t "iBackup" "INFO: Delete old backups"
+		${BDIR}/cleaner.bash
 
-echo "backup-${DATE} > "`find ${BCKFS_MOUNTPOINT}/backup-${DATE} -type f -links 1 -printf "%s\n" | awk '{s=s+$1} END {print s}'` >> ${BACKUPDIR}/space-used
+		echo "backup-${DATE} > "`find ${BCKFS_MOUNTPOINT}/backup-${DATE} -type f -links 1 -printf "%s\n" | awk '{s=s+$1} END {print s}'` >> ${BACKUPDIR}/space-used
 
-# get remote disk-usage and alarm usage over 70%
-DUSE=`echo "df" | sftp ${BSRV} 2>&1 | tail -n 1 | awk '{ print $5 }' | cut -d'%' -f1`
-if [ ${DUSE} -ge 70 ]; then
-	logger -t "h(ourBackup)" "Running out of Backup-Space. ${date} ${BSRV} (${DUSE}%)"
-	echo "Running out of Backup-Space. ${date} ${BSRV} (${DUSE}%)" | \
-	mail -s "Alert: Backup-Space ${DUSE}%" ${REPORTMAIL}
-else
-	logger -t "h(ourBackup)" "Backup-Space OK. ${BSRV} (${DUSE}%)"
-fi
+		# get remote disk-usage and alarm usage over 70%
+		DUSE=`echo "df" | sftp ${BSRV} 2>&1 | tail -n 1 | awk '{ print $5 }' | cut -d'%' -f1`
+		if [ ${DUSE} -ge 70 ]; then
+			logger -t "h(ourBackup)" "Running out of Backup-Space. ${date} ${BSRV} (${DUSE}%)"
+			echo "Running out of Backup-Space. ${date} ${BSRV} (${DUSE}%)" | \
+			mail -s "Alert: Backup-Space ${DUSE}%" ${REPORTMAIL}
+		else
+			logger -t "h(ourBackup)" "Backup-Space OK. ${BSRV} (${DUSE}%)"
+		fi
+		;;
+	*)
+		mail -s "ERROR RSYNC" ${REPORTMAIL}
+		;;
+esac
