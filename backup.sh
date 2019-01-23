@@ -44,7 +44,7 @@ fsck -p ${HETZNER_MOUNTPOINT}/filesystem.img >> ${BACKUPDIR}/fsck.log
 if [ $? -eq 4 ]; then
   logger -t "h(ourBackup)" "ERROR: Filesystem needs manual repair. Aborting."
   echo "Filesystem needs manual repair ${date} ${BSRV}" | \
-  mail -s "ERROR Filesystem needs manual repair" floreno@web.de
+  mail -s "ERROR Filesystem needs manual repair" ${REPORTMAIL}
   exit 1
 fi
 
