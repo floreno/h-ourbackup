@@ -1,5 +1,5 @@
 # h-ourbackup
-A hourly RSync-Backup-Script
+A hourly incremental RSync-Backup-Script for Hetzner-Server/-Backupspace.
 
 # Installation
 # Create backup folders
